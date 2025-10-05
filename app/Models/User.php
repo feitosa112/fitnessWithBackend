@@ -23,6 +23,7 @@ class User extends Authenticatable
         'goals',
         'training_type',
         'password',
+        'last_login_at'
     ];
 
     /**

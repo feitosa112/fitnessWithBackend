@@ -1,14 +1,40 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+Route::middleware('web')->group(function () {
 
-Route::post('/login', [AuthenticatedSessionController::class, 'store']);
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+    // Login
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-require __DIR__.'/auth.php';
+    // Authenticated user
+    Route::middleware('auth')->get('/user', function () {
+        $user = Auth::user();
+        return response()->json([
+            'id' => $user->id,
+            'email' => $user->email,
+        ]);
+    });
+
+    // Logout
+    Route::post('/logout', function (Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json(['message' => 'Logged out']);
+    });
+});
+
+
+
+
+
+
+
